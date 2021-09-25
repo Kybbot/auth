@@ -34,9 +34,7 @@ api.interceptors.response.use(
 	async (response) => {
 		const originalRequest = response.config;
 
-		if (response.data.statusCode === 401 && !originalRequest._retry) {
-			originalRequest._retry = true;
-
+		if (response.data.statusCode === 401) {
 			try {
 				const accessToken = await TokenProvider.refreshToken();
 
@@ -44,7 +42,7 @@ api.interceptors.response.use(
 
 				return api(originalRequest);
 			} catch (err) {
-				TokenProvider.setTokens(null);
+				TokenProvider.removeTokens();
 				return Promise.reject(err);
 			}
 		}
@@ -64,7 +62,7 @@ api.interceptors.response.use(
 
 				return api(originalRequest);
 			} catch (err) {
-				TokenProvider.setTokens(null);
+				TokenProvider.removeTokens();
 				return Promise.reject(err);
 			}
 		}

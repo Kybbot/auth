@@ -1,12 +1,19 @@
 import { authApi } from './api';
 
+import { ITokens, Tokens, IRefreshTokenResponse } from '../types/tokens';
+
 class TokenProvider {
-	setTokens = (tokens) => {
+	setTokens = (tokens: ITokens) => {
 		localStorage.setItem('auth', JSON.stringify(tokens));
 	};
 
+	removeTokens = () => {
+		localStorage.removeItem('auth');
+	};
+
 	getAccessToken = () => {
-		const auth = JSON.parse(localStorage.getItem('auth')) || null;
+		const authTokens = localStorage.getItem('auth') || null;
+		const auth: Tokens = authTokens !== null ? JSON.parse(authTokens) : null;
 
 		if (auth) return auth.access_token;
 
@@ -14,7 +21,8 @@ class TokenProvider {
 	};
 
 	getRefreshToken = () => {
-		const auth = JSON.parse(localStorage.getItem('auth')) || null;
+		const authTokens = localStorage.getItem('auth') || null;
+		const auth: Tokens = authTokens !== null ? JSON.parse(authTokens) : null;
 
 		if (auth) return auth.refresh_token;
 
@@ -24,7 +32,7 @@ class TokenProvider {
 	refreshToken = async () => {
 		const refreshToken = this.getRefreshToken();
 
-		const rs = await authApi.post(
+		const rs = await authApi.post<IRefreshTokenResponse>(
 			'refresh',
 			{},
 			{
