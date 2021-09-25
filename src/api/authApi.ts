@@ -1,9 +1,12 @@
 import { authApi } from './api';
 
-export const signUp = (body) => {
-	return authApi.post('sign_up', body);
+import { ILoginResponse } from '../types/login';
+import { ISignupResponse } from '../types/signup';
+
+export const signup = (body: string) => {
+	return authApi.post<ISignupResponse>('sign_up', body);
 };
 
-export const logIn = (email, password) => {
-	return authApi.post(`login?email=${email}&password=${password}`);
+export const login = (email: string, password: string) => {
+	return authApi.post<ILoginResponse>(`login?email=${email}&password=${password}`);
 };
