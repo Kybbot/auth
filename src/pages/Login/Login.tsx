@@ -2,16 +2,18 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import { routesConstants } from '../../constants';
-import { logIn } from '../../api/authApi';
+import { login } from '../../api/authApi';
 import TokenProvider from '../../api/token';
 
-const Login = () => {
-	const [state, setState] = React.useState({
+import { ILoginState } from '../../types/login';
+
+const Login: React.FC = () => {
+	const [state, setState] = React.useState<ILoginState>({
 		email: '',
 		password: '',
 	});
 
-	const handleInputChange = (event) => {
+	const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = event.target;
 
 		setState((prevState) => ({
@@ -20,11 +22,11 @@ const Login = () => {
 		}));
 	};
 
-	const handleSubmit = async (event) => {
+	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
 		try {
-			const result = await logIn(state.email, state.password);
+			const result = await login(state.email, state.password);
 
 			if (result.data.statusCode === 200) {
 				TokenProvider.setTokens(result.data.body);

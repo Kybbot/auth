@@ -3,17 +3,17 @@ import React from 'react';
 import TokenProvider from '../../api/token';
 import { getUserData } from '../../api/userApi';
 
-const Home = () => {
-	const [userData, setUserData] = React.useState(null);
+const Home: React.FC = () => {
+	const [userData, setUserData] = React.useState<string | null>(null);
 	const [loading, setLoading] = React.useState(false);
 
 	const logoutHandler = () => {
-		TokenProvider.setTokens(null);
+		TokenProvider.removeTokens();
 		document.location.reload();
 	};
 
 	React.useEffect(() => {
-		const fetcData = async () => {
+		const fetchData = async () => {
 			try {
 				setLoading(true);
 				const result = await getUserData();
@@ -25,7 +25,7 @@ const Home = () => {
 			}
 		};
 
-		fetcData();
+		fetchData();
 	}, []);
 
 	return (

@@ -2,15 +2,17 @@ import React from 'react';
 import { Link, useHistory } from 'react-router-dom';
 
 import { routesConstants } from '../../constants';
-import { signUp } from '../../api/authApi';
+import { signup } from '../../api/authApi';
 
-const Signup = () => {
-	const [state, setState] = React.useState({
+import { ISignupState } from '../../types/signup';
+
+const Signup: React.FC = () => {
+	const [state, setState] = React.useState<ISignupState>({
 		email: '',
 		password: '',
 	});
 
-	const handleInputChange = (event) => {
+	const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = event.target;
 
 		setState((prevState) => ({
@@ -21,12 +23,12 @@ const Signup = () => {
 
 	const history = useHistory();
 
-	const handleSubmit = async (event) => {
+	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
 		try {
 			const body = JSON.stringify(state);
-			const result = await signUp(body);
+			const result = await signup(body);
 
 			if (result.status === 200) {
 				history.push(routesConstants.login);
