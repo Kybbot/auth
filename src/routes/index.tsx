@@ -1,18 +1,15 @@
-import React from 'react';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 
 import { Home, Login, Signup } from '../pages';
-
 import { routesConstants } from '../constants';
-
-import TokenProvider from '../api/token';
+import { useAuth } from '../context/AuthContext';
 
 const Routes = () => {
-	const isAuth = !!TokenProvider.getAccessToken();
+	const { isLoggedIn } = useAuth();
 
 	return (
 		<BrowserRouter>
-			{isAuth ? (
+			{isLoggedIn ? (
 				<Switch>
 					<Route exact path={routesConstants.home} component={Home} />
 					<Redirect to={routesConstants.home} />
