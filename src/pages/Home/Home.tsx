@@ -1,27 +1,30 @@
 import React from 'react';
 
-import TokenProvider from '../../api/token';
+import { useAuth } from '../../context/AuthContext';
 import { getUserData } from '../../api/userApi';
 
 const Home: React.FC = () => {
+	const { logout } = useAuth();
 	const [userData, setUserData] = React.useState<string | null>(null);
-	const [loading, setLoading] = React.useState(false);
+	const [loading, setLoading] = React.useState<boolean>(true);
 
 	const logoutHandler = () => {
-		TokenProvider.removeTokens();
-		document.location.reload();
+		logout();
 	};
 
 	React.useEffect(() => {
 		const fetchData = async () => {
 			try {
 				setLoading(true);
+
 				const result = await getUserData();
 				setUserData(result.data.body.message);
+
 				setLoading(false);
 			} catch (error) {
 				setLoading(false);
-				console.log(error);
+
+				alert(error);
 			}
 		};
 
@@ -29,7 +32,7 @@ const Home: React.FC = () => {
 	}, []);
 
 	return (
-		<div>
+		<>
 			<h1>Home</h1>
 			{loading ? (
 				'Loading'
@@ -41,7 +44,7 @@ const Home: React.FC = () => {
 					</button>
 				</>
 			)}
-		</div>
+		</>
 	);
 };
 

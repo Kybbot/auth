@@ -2,11 +2,16 @@ import React from 'react';
 import { Link, useHistory } from 'react-router-dom';
 
 import { routesConstants } from '../../constants';
-import { signup } from '../../api/authApi';
+import { useAuth } from '../../context/AuthContext';
 
+import { responseStatuses } from '../../types/authContext';
 import { ISignupState } from '../../types/signup';
 
 const Signup: React.FC = () => {
+	const { loading, signup } = useAuth();
+
+	const history = useHistory();
+
 	const [state, setState] = React.useState<ISignupState>({
 		email: '',
 		password: '',
@@ -21,20 +26,13 @@ const Signup: React.FC = () => {
 		}));
 	};
 
-	const history = useHistory();
-
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
-		try {
-			const body = JSON.stringify(state);
-			const result = await signup(body);
+		const status = await signup(state)!;
 
-			if (result.status === 200) {
-				history.push(routesConstants.login);
-			}
-		} catch (error) {
-			console.log(error);
+		if (status === responseStatuses.ok) {
+			history.push(routesConstants.login);
 		}
 	};
 
@@ -63,9 +61,12 @@ const Signup: React.FC = () => {
 					required
 				/>
 			</label>
-			<button type='submit'>Sign Up</button>
+			<button type='submit' disabled={loading}>
+				Signup
+			</button>
+			{loading ? 'Loading' : ''}
 			<p className='text-center'>
-				Already have an account? <Link to={routesConstants.login}>Log in</Link>
+				Already have an account? <Link to={routesConstants.login}>Login</Link>
 			</p>
 		</form>
 	);

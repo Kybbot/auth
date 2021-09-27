@@ -2,12 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import { routesConstants } from '../../constants';
-import { login } from '../../api/authApi';
-import TokenProvider from '../../api/token';
+import { useAuth } from '../../context/AuthContext';
 
 import { ILoginState } from '../../types/login';
 
 const Login: React.FC = () => {
+	const { loading, login } = useAuth();
+
 	const [state, setState] = React.useState<ILoginState>({
 		email: '',
 		password: '',
@@ -22,19 +23,10 @@ const Login: React.FC = () => {
 		}));
 	};
 
-	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
-		try {
-			const result = await login(state.email, state.password);
-
-			if (result.data.statusCode === 200) {
-				TokenProvider.setTokens(result.data.body);
-				document.location.reload();
-			}
-		} catch (error) {
-			console.log(error);
-		}
+		login(state.email, state.password);
 	};
 
 	return (
@@ -62,9 +54,12 @@ const Login: React.FC = () => {
 					required
 				/>
 			</label>
-			<button type='submit'>Log In</button>
+			<button type='submit' disabled={loading}>
+				Login
+			</button>
+			{loading ? 'Loading' : ''}
 			<p className='text-center'>
-				Need an account? <Link to={routesConstants.signup}>Sign Up</Link>
+				Need an account? <Link to={routesConstants.signup}>Signup</Link>
 			</p>
 		</form>
 	);
