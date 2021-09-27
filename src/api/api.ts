@@ -38,11 +38,16 @@ api.interceptors.response.use(
 			try {
 				const accessToken = await TokenProvider.refreshToken();
 
+				if (!accessToken) {
+					throw new Error('Refresh token error!');
+				}
+
 				originalRequest.headers.Authorization = accessToken;
 
 				return api(originalRequest);
 			} catch (err) {
 				TokenProvider.removeTokens();
+				window.location.reload();
 				return Promise.reject(err);
 			}
 		}
