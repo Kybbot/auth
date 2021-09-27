@@ -42,11 +42,17 @@ class TokenProvider {
 			}
 		);
 
-		const tokens = rs.data.body;
-		const accessToken = rs.data.body.access_token;
-		this.setTokens(tokens);
+		if (rs.data.statusCode === 200) {
+			const tokens = rs.data.body;
+			const accessToken = rs.data.body.access_token;
+			this.setTokens(tokens);
 
-		return accessToken;
+			return accessToken;
+		}
+
+		this.removeTokens();
+
+		return null;
 	};
 }
 
