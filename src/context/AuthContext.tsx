@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 			setLoading(false);
 
 			if (response.data.statusCode !== 200) {
-				throw new Error(response.data.body.message);
+				throw new Error(response.data.message);
 			}
 
 			TokenProvider.setTokens(response.data.body);
