@@ -3,7 +3,7 @@ import React from 'react';
 import TokenProvider from '../api/token';
 import { signupWithEmailAndPassword, loginWithEmailAndPassword } from '../api/authApi';
 
-import { IAuthContext, AuthProviderProps, responseStatuses } from '../types/authContext';
+import { IAuthContext, responseStatuses } from '../types/authContext';
 import { ISignupState } from '../types/signup';
 
 const AuthContext = React.createContext<IAuthContext>({
@@ -19,7 +19,7 @@ export const useAuth = () => {
 	return React.useContext(AuthContext);
 };
 
-export const AuthProvider = ({ children }: AuthProviderProps) => {
+export const AuthProvider: React.FC = ({ children }) => {
 	const accessToken = TokenProvider.getAccessToken();
 	const [token, setToken] = React.useState<string | null>(accessToken);
 	const isLoggedIn = !!token;

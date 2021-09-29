@@ -9,10 +9,6 @@ export interface IAuthContext {
 	logout: () => void;
 }
 
-export type AuthProviderProps = {
-	children: JSX.Element;
-};
-
 export const responseStatuses = {
 	ok: 'Ok',
 	error: 'error',
