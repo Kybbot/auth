@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import TokenProvider from './token';
 
 export const authApi = axios.create({
@@ -15,63 +15,69 @@ export const api = axios.create({
 	},
 });
 
-api.interceptors.request.use(
-	(config) => {
-		const token = TokenProvider.getAccessToken();
+// Request interceptor
 
-		if (token) {
-			config.headers['Authorization'] = `Bearer ${token}`;
-		}
+const handleSuccessRequest = (config: AxiosRequestConfig) => {
+	const token = TokenProvider.getAccessToken();
 
-		return config;
-	},
-	(error) => {
-		return Promise.reject(error);
+	if (token) {
+		config.headers['Authorization'] = `Bearer ${token}`;
 	}
-);
 
-api.interceptors.response.use(
-	async (response) => {
-		const originalRequest = response.config;
+	return config;
+};
 
-		if (response.data.statusCode === 401) {
-			try {
-				const accessToken = await TokenProvider.refreshToken();
+const handleErrorRequest = (error: any) => {
+	return Promise.reject(error);
+};
 
-				if (!accessToken) {
-					throw new Error('Refresh token error!');
-				}
+api.interceptors.request.use(handleSuccessRequest, handleErrorRequest);
 
-				originalRequest.headers.Authorization = accessToken;
+// Response interceptor
 
-				return api(originalRequest);
-			} catch (err) {
-				TokenProvider.removeTokens();
-				window.location.reload();
-				return Promise.reject(err);
+const handleSuccessResponse = async (response: AxiosResponse) => {
+	const originalRequest = response.config;
+
+	if (response.data.statusCode === 401) {
+		try {
+			const accessToken = await TokenProvider.refreshToken();
+
+			if (!accessToken) {
+				throw new Error('Refresh token error! Update page.');
 			}
+
+			originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+
+			return api(originalRequest);
+		} catch (err) {
+			TokenProvider.removeTokens();
+			window.location.reload();
+			return Promise.reject(err);
 		}
-
-		return response;
-	},
-	async (error) => {
-		const originalRequest = error.config;
-
-		if (error.response.status === 401 && !originalRequest._retry) {
-			originalRequest._retry = true;
-
-			try {
-				const accessToken = await TokenProvider.refreshToken();
-
-				originalRequest.headers.Authorization = accessToken;
-
-				return api(originalRequest);
-			} catch (err) {
-				TokenProvider.removeTokens();
-				return Promise.reject(err);
-			}
-		}
-
-		return Promise.reject(error);
 	}
-);
+
+	return response;
+};
+
+const handleErrorResponse = async (error: any): Promise<any> => {
+	const originalRequest = error.config;
+
+	if (error.response.status === 401 && !originalRequest._retry) {
+		originalRequest._retry = true;
+
+		try {
+			const accessToken = await TokenProvider.refreshToken();
+
+			originalRequest.headers.Authorization = accessToken;
+
+			return api(originalRequest);
+		} catch (_) {
+			TokenProvider.removeTokens();
+			return Promise.reject(error);
+		}
+	}
+
+	return Promise.reject(error);
+};
+
+api.interceptors.response.use(handleSuccessResponse, handleErrorResponse);
